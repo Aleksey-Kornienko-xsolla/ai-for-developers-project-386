@@ -1,0 +1,490 @@
+openapi: 3.0.0
+info:
+  title: Booking
+  version: 0.0.0
+tags: []
+paths:
+  /api/v1/admin/bookings:
+    get:
+      operationId: BookingsManagement_listUpcomingBookings
+      description: |-
+        Список будущих бронирований (startUtc > now), отсортирован по startUtc asc.
+        Без пагинации (MVP). Брони всех типов событий в одном массиве.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+  /api/v1/admin/event-types:
+    get:
+      operationId: EventTypeManagement_listEventTypes
+      description: Список всех типов события (управленческий, включая все активные).
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventType'
+    post:
+      operationId: EventTypeManagement_createEventType
+      description: Создать тип события. id-slug задаёт владелец, должен быть уникальным.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/EventType'
+                  - $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventTypeRequest'
+  /api/v1/admin/event-types/{id}:
+    get:
+      operationId: EventTypeManagement_getEventType
+      description: Получить один тип события по slug.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/EventTypeId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/EventType'
+                  - $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: EventTypeManagement_updateEventType
+      description: Обновить название/описание/длительность. id не меняется.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/EventTypeId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/EventType'
+                  - $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventTypeRequest'
+    delete:
+      operationId: EventTypeManagement_deleteEventType
+      description: Удалить тип события. Запрещено (409), если по типу есть бронирования.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/EventTypeId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+  /api/v1/admin/owner:
+    get:
+      operationId: OwnerManagement_getOwner
+      description: Получить текущий профиль владельца.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/Owner'
+                  - $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: OwnerManagement_updateOwner
+      description: Задать/обновить профиль владельца (имя + email).
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/Owner'
+                  - $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOwnerRequest'
+  /api/v1/event-types:
+    get:
+      operationId: Public_listEventTypes
+      description: Список доступных длительностей события (15 и 30 минут).
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventType'
+  /api/v1/event-types/{id}:
+    get:
+      operationId: Public_getEventType
+      description: Описание одного типа события по ссылке-приглашению вида /booking/{id}.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/EventTypeId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/EventType'
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/event-types/{id}/availability:
+    get:
+      operationId: Public_listAvailability
+      description: Свободные слоты на 14 дней вперёд от сегодня (UTC), сетка 15 минут.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/EventTypeId'
+        - name: fromUtc
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          explode: false
+        - name: toUtc
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Slot'
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/event-types/{id}/bookings:
+    post:
+      operationId: Public_createBooking
+      description: |-
+        Создать бронирование выбранным слотом. Идемпотентность по Idempotency-Key.
+        201 Booking | 409 если слот занят | 404 если eventTypeId/слот не найдены.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/EventTypeId'
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/Booking'
+                  - $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequest'
+components:
+  schemas:
+    Booking:
+      type: object
+      required:
+        - id
+        - slotId
+        - eventType
+        - startUtc
+        - endUtc
+        - guest
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор брони.
+        slotId:
+          allOf:
+            - $ref: '#/components/schemas/SlotId'
+          description: Идентификатор забронированного слота.
+        eventType:
+          allOf:
+            - $ref: '#/components/schemas/EventType'
+          description: Тип события, по которому создана бронь.
+        startUtc:
+          type: string
+          format: date-time
+          description: Начало встречи в UTC (дублирует данные слота для удобства фронта).
+        endUtc:
+          type: string
+          format: date-time
+          description: Конец встречи в UTC.
+        guest:
+          allOf:
+            - $ref: '#/components/schemas/Guest'
+          description: Данные гостя.
+        createdAt:
+          type: string
+          format: date-time
+          description: Время создания брони в UTC.
+      description: Созданное гостем бронирование.
+    BookingRequest:
+      type: object
+      required:
+        - slotId
+        - guest
+      properties:
+        slotId:
+          allOf:
+            - $ref: '#/components/schemas/SlotId'
+          description: Идентификатор слота, который гость хочет забронировать.
+        guest:
+          allOf:
+            - $ref: '#/components/schemas/Guest'
+          description: Данные гостя.
+      description: Тело запроса на создание бронирования.
+    CreateEventTypeRequest:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - durationMinutes
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/EventTypeId'
+          description: Slug типа события, уникальный.
+        name:
+          type: string
+          minLength: 1
+          description: Название.
+        description:
+          type: string
+          description: Описание.
+        durationMinutes:
+          allOf:
+            - $ref: '#/components/schemas/DurationMinutes'
+          description: Длительность в минутах (5..480).
+      description: Тело запроса на создание типа события. id задаёт владелец, далее не меняется.
+    DurationMinutes:
+      type: integer
+      format: int16
+      minimum: 5
+      maximum: 480
+      description: Доступные длительности события (минуты). Произвольное значение 5..480.
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+          format: int16
+          description: HTTP-статус.
+        message:
+          type: string
+          minLength: 1
+          description: Краткое сообщение об ошибке.
+      description: Ответ с ошибкой (упрощённый набор для MVP).
+    EventType:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - durationMinutes
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/EventTypeId'
+          description: Идентификатор-slug, задаваемый владельцем (например, "intro-call").
+        name:
+          type: string
+          minLength: 1
+          description: Название типа события, отображается гостям.
+        description:
+          type: string
+          description: Описание типа события (текст для гостей).
+        durationMinutes:
+          allOf:
+            - $ref: '#/components/schemas/DurationMinutes'
+          description: Длительность в минутах (5..480).
+      description: Тип события, создаваемый владельцем. Длительность произвольная 5..480 минут.
+    EventTypeId:
+      type: string
+      pattern: ^[a-z0-9][a-z0-9-]{0,49}$
+      description: Идентификатор типа события — slug, задаваемый владельцем (например, "intro-call").
+    Guest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Имя гостя.
+        email:
+          type: string
+          pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+          description: Email гостя для связи.
+      description: Гость — тот, кто бронирует слот. Без аккаунта.
+    Owner:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: string
+          pattern: ^owner$
+          description: Фиксированный идентификатор владельца.
+        name:
+          type: string
+          minLength: 1
+          description: Имя владельца, отображается гостям.
+        email:
+          type: string
+          pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+          description: Email владельца, куда приходят брони (в админке задаётся один раз).
+      description: Единственный владелец календаря. Профиль задан заранее, без регистрации.
+    Slot:
+      type: object
+      required:
+        - id
+        - startUtc
+        - endUtc
+        - durationMinutes
+        - status
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/SlotId'
+          description: Идентификатор слота, UTC-слаг YYYYMMDDTHHMM.
+        startUtc:
+          type: string
+          format: date-time
+          description: Начало слота в UTC.
+        endUtc:
+          type: string
+          format: date-time
+          description: Конец слота в UTC = startUtc + durationMinutes.
+        durationMinutes:
+          allOf:
+            - $ref: '#/components/schemas/DurationMinutes'
+          description: Длительность слота в минутах (берётся из типа события).
+        status:
+          allOf:
+            - $ref: '#/components/schemas/SlotStatus'
+          description: Текущая доступность слота.
+      description: Кандидат на бронь, генерируется сервером на 14 дней вперёд, сетка 15 мин, UTC.
+    SlotId:
+      type: string
+      pattern: ^\d{8}T\d{4}$
+      description: Идентификатор слота — UTC-слаг формата YYYYMMDDTHHMM (например, 20260811T0930).
+    SlotStatus:
+      type: string
+      enum:
+        - available
+        - booked
+      description: Статус слота для бронирования.
+    UpdateEventTypeRequest:
+      type: object
+      required:
+        - name
+        - description
+        - durationMinutes
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Название.
+        description:
+          type: string
+          description: Описание.
+        durationMinutes:
+          allOf:
+            - $ref: '#/components/schemas/DurationMinutes'
+          description: Длительность в минутах (5..480).
+      description: Тело запроса на обновление типа события. id не меняется (в path).
+    UpdateOwnerRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      description: Тело запроса на обновление профиля владельца.
+servers:
+  - url: https://booking.example.com
+    description: Production
+    variables: {}

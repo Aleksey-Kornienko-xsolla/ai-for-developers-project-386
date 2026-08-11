@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/typespec/main/@typespec/openapi3/tspconfig.json",
+  "emit": {
+    "@typespec/openapi3": {
+      "openapi-version": "3.0.0",
+      "file-type": "yaml",
+      "output-dir": "{project-root}/openapi"
+    }
+  },
+  "options": {
+    "emit-openapi": true
+  }
+}
