@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useAvailability, type Slot } from "@/entities/booking/useAvailability";
 import { Spinner, ErrorBanner, EmptyState } from "@/shared/ui";
 import { dayKey, formatDay, formatSlotTime, getBrowserTimezone } from "@/shared/lib/date";
@@ -7,10 +7,20 @@ interface AvailabilityWidgetProps {
   eventTypeId: string;
   selectedSlotId: string | null;
   onSelectSlot: (slot: Slot) => void;
+  initialSlotId?: string | null;
+  focusDay?: string | null;
 }
 
-export function AvailabilityWidget({ eventTypeId, selectedSlotId, onSelectSlot }: AvailabilityWidgetProps) {
+export function AvailabilityWidget({
+  eventTypeId,
+  selectedSlotId,
+  onSelectSlot,
+  initialSlotId,
+  focusDay,
+}: AvailabilityWidgetProps) {
   const { data, isLoading, isError, error, refetch } = useAvailability(eventTypeId);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const appliedInitial = useRef(false);
 
   const grouped = useMemo(() => {
     const slots = data ?? [];
@@ -23,6 +33,23 @@ export function AvailabilityWidget({ eventTypeId, selectedSlotId, onSelectSlot }
     }
     return Array.from(map.entries());
   }, [data]);
+
+  // Предвыбор слота по ?slot=
+  useEffect(() => {
+    if (appliedInitial.current || !data || !initialSlotId) return;
+    const match = data.find((s) => s.id === initialSlotId && s.status === "available");
+    if (match) {
+      appliedInitial.current = true;
+      onSelectSlot(match);
+    }
+  }, [data, initialSlotId, onSelectSlot]);
+
+  // Скролл к дню по ?day=
+  useEffect(() => {
+    if (!focusDay || !scrollRef.current || grouped.length === 0) return;
+    const target = scrollRef.current.querySelector<HTMLElement>(`[data-day="${focusDay}"]`);
+    if (target) target.scrollIntoView({ behavior: "auto", block: "start" });
+  }, [focusDay, grouped]);
 
   if (isLoading) {
     return (
@@ -54,12 +81,10 @@ export function AvailabilityWidget({ eventTypeId, selectedSlotId, onSelectSlot }
 
   return (
     <div>
-      <p className="mb-3 text-xs font-medium text-slate-500">
-        Время в зоне {getBrowserTimezone()}
-      </p>
-      <div className="max-h-[28rem] space-y-5 overflow-y-auto pr-1">
+      <p className="mb-3 text-xs font-medium text-slate-500">Время в зоне {getBrowserTimezone()}</p>
+      <div ref={scrollRef} className="max-h-[28rem] space-y-5 overflow-y-auto pr-1">
         {grouped.map(([day, daySlots]) => (
-          <div key={day}>
+          <div key={day} data-day={day}>
             <p className="mb-2 text-sm font-semibold text-slate-700">{formatDay(daySlots[0].startUtc)}</p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {daySlots.map((s) => {

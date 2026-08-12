@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEventType } from "@/entities/event-type/useEventType";
 import {
   useCreateBooking,
@@ -28,6 +28,9 @@ interface EventTypePageProps {
 
 export function EventTypePage({ id }: EventTypePageProps) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const slotParam = searchParams.get("slot");
+  const dayParam = searchParams.get("day");
   const { data: eventType, isLoading, isError, error, refetch } = useEventType(id);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
@@ -38,6 +41,14 @@ export function EventTypePage({ id }: EventTypePageProps) {
   function handleSelectSlot(slot: Slot) {
     setSelectedSlot(slot);
     setServerError(null);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("slot", slot.id);
+        return next;
+      },
+      { replace: true },
+    );
   }
 
   async function handleSubmit(values: BookingFormValues) {
@@ -135,6 +146,8 @@ export function EventTypePage({ id }: EventTypePageProps) {
               eventTypeId={eventType.id}
               selectedSlotId={null}
               onSelectSlot={handleSelectSlot}
+              initialSlotId={slotParam}
+              focusDay={dayParam}
             />
           </>
         ) : (
@@ -147,6 +160,14 @@ export function EventTypePage({ id }: EventTypePageProps) {
                 onClick={() => {
                   setSelectedSlot(null);
                   setServerError(null);
+                  setSearchParams(
+                    (prev) => {
+                      const next = new URLSearchParams(prev);
+                      next.delete("slot");
+                      return next;
+                    },
+                    { replace: true },
+                  );
                 }}
               >
                 ← Изменить время
@@ -167,6 +188,14 @@ export function EventTypePage({ id }: EventTypePageProps) {
                   handleResetIdempotency();
                   setSelectedSlot(null);
                   setServerError(null);
+                  setSearchParams(
+                    (prev) => {
+                      const next = new URLSearchParams(prev);
+                      next.delete("slot");
+                      return next;
+                    },
+                    { replace: true },
+                  );
                 }}
                 className="text-sm font-medium text-brand hover:underline"
               >

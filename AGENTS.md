@@ -18,6 +18,7 @@ Repository for a Calendly-style booking app. TypeSpec contract in `contract/` is
 ## Mock backend (no real backend exists yet)
 - `vite-plugin-mock-dev-server` intercepts `/api/*` in dev only; it does NOT run in `build`/prod.
 - Mock state lives in `globalThis.__MOCK_STATE__` inside `mock/db.ts` so it persists across requests within a dev session. Do not move it to module-level `let`/`const` — the plugin re-imports handler modules and module-level state would reset per request.
+- `.env`/`.env.example` use `VITE_API_BASE_URL=` (empty) — paths in `schema.d.ts` already start with `/api/v1`, so the client must NOT prepend another prefix (doubling causes requests to fall through the mock handlers and into the proxy → 500).
 - Handlers in `mock/handlers/*.ts` mirror the contract routes. Seed data: `owner` = `owner@example.com`, event types `intro-call` (30m) and `consultation` (60m).
 - Toggle mocks via `VITE_USE_MOCK` in `frontend/.env` (`true` by default). When real backend is ready, set `VITE_USE_MOCK=false` and point `VITE_API_PROXY_TARGET` at the backend.
 
