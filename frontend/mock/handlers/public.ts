@@ -33,7 +33,11 @@ export default [
         sendJson(res, 404, errorResponse(404, `Event type '${id}' not found`));
         return;
       }
-      const slots = generateSlots(et);
+      const owner = db.getOwner();
+      const slots = generateSlots(et, {
+        workStartHour: owner.workStartHour,
+        workEndHour: owner.workEndHour,
+      });
       sendJson(res, 200, slots);
     },
   },
@@ -45,6 +49,7 @@ export default [
       const id = req.params.id as string;
       const idempotencyKey = getHeader(req, "Idempotency-Key");
       const et = db.getEventType(id);
+      const owner = db.getOwner();
 
       if (!et) {
         sendJson(res, 404, errorResponse(404, `Event type '${id}' not found`));
@@ -67,7 +72,10 @@ export default [
         return;
       }
 
-      const slots = generateSlots(et);
+      const slots = generateSlots(et, {
+          workStartHour: owner.workStartHour,
+          workEndHour: owner.workEndHour,
+        });
       const slot = slots.find((s) => s.id === body.slotId);
       if (!slot) {
         sendJson(res, 404, errorResponse(404, `Slot '${body.slotId}' not found`));

@@ -9,6 +9,8 @@ export interface Owner {
   id: string;
   name: string;
   email: string;
+  workStartHour: number;
+  workEndHour: number;
 }
 
 export interface EventType {
@@ -45,20 +47,22 @@ const SEED_OWNER: Owner = {
   id: "owner",
   name: "Alex Owner",
   email: "owner@example.com",
+  workStartHour: 9,
+  workEndHour: 18,
 };
 
 const SEED_EVENT_TYPES: EventType[] = [
   {
-    id: "intro-call",
-    name: "Intro call",
-    description: "Короткая знакомительная встреча, чтобы обсудить ваши задачи.",
-    durationMinutes: 30,
+    id: "quick-call",
+    name: "Быстрый звонок",
+    description: "Короткий звонок на 15 минут для оперативных вопросов.",
+    durationMinutes: 15,
   },
   {
-    id: "consultation",
-    name: "Консультация",
-    description: "Глубокая консультация с разбором конкретной ситуации.",
-    durationMinutes: 60,
+    id: "standard",
+    name: "Стандартная встреча",
+    description: "Встреча на 30 минут для обсуждения деталей.",
+    durationMinutes: 30,
   },
 ];
 
@@ -143,23 +147,25 @@ export function slotIdFromDate(d: Date): string {
   );
 }
 
-/** Генерация слотов на 14 дней вперёд от сегодня (UTC), сетка 15 мин, окно 9:00–18:00. */
-export function generateSlots(eventType: EventType, daysAhead = 14): Slot[] {
+/** Генерация слотов на 14 дней вперёд от сегодня (UTC), сетка 15 мин, окно по рабочим часам владельца. */
+export function generateSlots(
+  eventType: EventType,
+  opts: { workStartHour: number; workEndHour: number } = { workStartHour: 9, workEndHour: 18 },
+  daysAhead = 14,
+): Slot[] {
   const slots: Slot[] = [];
   const now = new Date();
   const startDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   for (let d = 0; d < daysAhead; d++) {
     const day = new Date(startDay);
     day.setUTCDate(startDay.getUTCDate() + d);
-    for (let m = 9 * 60; m < 18 * 60; m += 15) {
+    for (let m = opts.workStartHour * 60; m < opts.workEndHour * 60; m += 15) {
       const start = new Date(day);
       start.setUTCMinutes(m, 0, 0);
       const end = new Date(start.getTime() + eventType.durationMinutes * 60_000);
       const slotId = slotIdFromDate(start);
-      // skip past slots today
       if (start.getTime() < now.getTime()) continue;
       const booked = db.isSlotBooked(slotId);
-      // respect duration: end must fit within a 15-min grid aligned availability
       slots.push({
         id: slotId,
         startUtc: start.toISOString(),

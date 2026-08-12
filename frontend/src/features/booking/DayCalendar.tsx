@@ -65,10 +65,21 @@ export function DayCalendar({ slots, selectedDay, onSelectDay, initialDay }: Day
   const labels = useMemo(() => weekdayShortLabels(), []);
   const cells = useMemo(() => calendarGridDays(viewMonth), [viewMonth]);
 
-  const monthHasWindow = useMemo(
-    () => cells.some((c) => windowDays.has(dayKey(c.iso))),
-    [cells, windowDays],
-  );
+  const prevEnabled = useMemo(() => {
+    return Array.from(windowDays).some((k) => {
+      const d = new Date(k + "T00:00:00");
+      return d.getFullYear() < viewMonth.getFullYear() ||
+        (d.getFullYear() === viewMonth.getFullYear() && d.getMonth() < viewMonth.getMonth());
+    });
+  }, [windowDays, viewMonth]);
+
+  const nextEnabled = useMemo(() => {
+    return Array.from(windowDays).some((k) => {
+      const d = new Date(k + "T00:00:00");
+      return d.getFullYear() > viewMonth.getFullYear() ||
+        (d.getFullYear() === viewMonth.getFullYear() && d.getMonth() > viewMonth.getMonth());
+    });
+  }, [windowDays, viewMonth]);
 
   function goPrev() {
     const d = new Date(viewMonth);
@@ -87,7 +98,7 @@ export function DayCalendar({ slots, selectedDay, onSelectDay, initialDay }: Day
         <button
           type="button"
           onClick={goPrev}
-          disabled={!monthHasWindow}
+          disabled={!prevEnabled}
           className="h-7 w-7 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Предыдущий месяц"
         >
@@ -99,7 +110,7 @@ export function DayCalendar({ slots, selectedDay, onSelectDay, initialDay }: Day
         <button
           type="button"
           onClick={goNext}
-          disabled={!monthHasWindow}
+          disabled={!nextEnabled}
           className="h-7 w-7 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Следующий месяц"
         >

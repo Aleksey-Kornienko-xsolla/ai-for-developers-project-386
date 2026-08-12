@@ -244,6 +244,16 @@ export interface components {
             name: string;
             /** @description Email владельца, куда приходят брони (в админке задаётся один раз). */
             email: string;
+            /**
+             * Format: int16
+             * @description Час начала рабочего дня (UTC), 0..23.
+             */
+            workStartHour: number;
+            /**
+             * Format: int16
+             * @description Час конца рабочего дня (UTC), 0..23. Должен быть больше workStartHour.
+             */
+            workEndHour: number;
         };
         /** @description Кандидат на бронь, генерируется сервером на 14 дней вперёд, сетка 15 мин, UTC. */
         Slot: {
@@ -284,6 +294,16 @@ export interface components {
         UpdateOwnerRequest: {
             name: string;
             email: string;
+            /**
+             * Format: int16
+             * @description Час начала рабочего дня (UTC), 0..23.
+             */
+            workStartHour: number;
+            /**
+             * Format: int16
+             * @description Час конца рабочего дня (UTC), 0..23. Должен быть больше workStartHour.
+             */
+            workEndHour: number;
         };
     };
     responses: never;

@@ -18,18 +18,30 @@ export function OwnerProfilePage() {
     formState: { errors },
   } = useForm<OwnerFormValues>({
     resolver: zodResolver(ownerSchema),
-    defaultValues: { name: "", email: "" },
+    defaultValues: { name: "", email: "", workStartHour: 9, workEndHour: 18 },
   });
 
   useEffect(() => {
-    if (data) reset({ name: data.name, email: data.email });
+    if (data) {
+      reset({
+        name: data.name,
+        email: data.email,
+        workStartHour: data.workStartHour,
+        workEndHour: data.workEndHour,
+      });
+    }
   }, [data, reset]);
 
   function onSubmit(values: OwnerFormValues) {
     setServerError(null);
     setSavedToast(false);
     update.mutate(
-      { name: values.name.trim(), email: values.email.trim() },
+      {
+        name: values.name.trim(),
+        email: values.email.trim(),
+        workStartHour: values.workStartHour,
+        workEndHour: values.workEndHour,
+      },
       {
         onSuccess: () => {
           setSavedToast(true);
@@ -95,6 +107,42 @@ export function OwnerProfilePage() {
         >
           <Input id="email" type="email" invalid={Boolean(errors.email)} {...register("email")} />
         </Field>
+
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <p className="mb-3 text-sm font-medium text-slate-700">Рабочие часы (UTC)</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Field
+              label="Час начала"
+              htmlFor="workStartHour"
+              error={errors.workStartHour?.message}
+            >
+              <Input
+                id="workStartHour"
+                type="number"
+                min={0}
+                max={23}
+                step={1}
+                invalid={Boolean(errors.workStartHour)}
+                {...register("workStartHour", { setValueAs: (v) => Number(v) })}
+              />
+            </Field>
+            <Field
+              label="Час конца"
+              htmlFor="workEndHour"
+              error={errors.workEndHour?.message}
+            >
+              <Input
+                id="workEndHour"
+                type="number"
+                min={0}
+                max={23}
+                step={1}
+                invalid={Boolean(errors.workEndHour)}
+                {...register("workEndHour", { setValueAs: (v) => Number(v) })}
+              />
+            </Field>
+          </div>
+        </div>
 
         {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
