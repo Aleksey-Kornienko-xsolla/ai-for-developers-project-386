@@ -39,6 +39,16 @@ model Owner {
   /** Email владельца, куда приходят брони (в админке задаётся один раз). */
   @pattern("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
   email: string;
+
+  /** Час начала рабочего дня (UTC), 0..23. */
+  @minValue(0)
+  @maxValue(23)
+  workStartHour: int16;
+
+  /** Час конца рабочего дня (UTC), 0..23. Должен быть больше workStartHour. */
+  @minValue(0)
+  @maxValue(23)
+  workEndHour: int16;
 }
 
 /** Тип события, создаваемый владельцем. Длительность произвольная 5..480 минут. */
@@ -122,6 +132,16 @@ model UpdateOwnerRequest {
 
   @pattern("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
   email: string;
+
+  /** Час начала рабочего дня (UTC), 0..23. */
+  @minValue(0)
+  @maxValue(23)
+  workStartHour: int16;
+
+  /** Час конца рабочего дня (UTC), 0..23. Должен быть больше workStartHour. */
+  @minValue(0)
+  @maxValue(23)
+  workEndHour: int16;
 }
 
 /** Тело запроса на создание типа события. id задаёт владелец, далее не меняется. */

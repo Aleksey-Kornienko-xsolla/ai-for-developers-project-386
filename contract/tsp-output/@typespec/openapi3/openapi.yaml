@@ -398,6 +398,8 @@ components:
         - id
         - name
         - email
+        - workStartHour
+        - workEndHour
       properties:
         id:
           type: string
@@ -411,6 +413,18 @@ components:
           type: string
           pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
           description: Email владельца, куда приходят брони (в админке задаётся один раз).
+        workStartHour:
+          type: integer
+          format: int16
+          minimum: 0
+          maximum: 23
+          description: Час начала рабочего дня (UTC), 0..23.
+        workEndHour:
+          type: integer
+          format: int16
+          minimum: 0
+          maximum: 23
+          description: Час конца рабочего дня (UTC), 0..23. Должен быть больше workStartHour.
       description: Единственный владелец календаря. Профиль задан заранее, без регистрации.
     Slot:
       type: object
@@ -476,6 +490,8 @@ components:
       required:
         - name
         - email
+        - workStartHour
+        - workEndHour
       properties:
         name:
           type: string
@@ -483,6 +499,18 @@ components:
         email:
           type: string
           pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+        workStartHour:
+          type: integer
+          format: int16
+          minimum: 0
+          maximum: 23
+          description: Час начала рабочего дня (UTC), 0..23.
+        workEndHour:
+          type: integer
+          format: int16
+          minimum: 0
+          maximum: 23
+          description: Час конца рабочего дня (UTC), 0..23. Должен быть больше workStartHour.
       description: Тело запроса на обновление профиля владельца.
 servers:
   - url: https://booking.example.com
