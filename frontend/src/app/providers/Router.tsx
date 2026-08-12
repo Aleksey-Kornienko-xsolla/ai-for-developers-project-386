@@ -17,6 +17,15 @@ const EventTypesListPage = lazy(() =>
 const EventTypePage = lazy(() =>
   import("@/pages/public/EventTypePage").then((m) => ({ default: m.EventTypePage })),
 );
+const OwnerProfilePage = lazy(() =>
+  import("@/pages/admin/OwnerProfilePage").then((m) => ({ default: m.OwnerProfilePage })),
+);
+const EventTypesAdminPage = lazy(() =>
+  import("@/pages/admin/EventTypesAdminPage").then((m) => ({ default: m.EventTypesAdminPage })),
+);
+const UpcomingBookingsPage = lazy(() =>
+  import("@/pages/admin/UpcomingBookingsPage").then((m) => ({ default: m.UpcomingBookingsPage })),
+);
 
 const withSuspense = (el: ReactNode) => (
   <Suspense
@@ -59,15 +68,15 @@ const router = createBrowserRouter([
       { index: true, element: withSuspense(<PlaceholderPage title="Админка" />) },
       {
         path: "owner",
-        element: withSuspense(<PlaceholderPage title="Профиль владельца (C2)" />),
+        element: withSuspense(<OwnerProfilePage />),
       },
       {
         path: "event-types",
-        element: withSuspense(<PlaceholderPage title="Типы событий (C3–C5)" />),
+        element: withSuspense(<EventTypesAdminPage />),
       },
       {
         path: "bookings",
-        element: withSuspense(<PlaceholderPage title="Предстоящие брони (C6)" />),
+        element: withSuspense(<UpcomingBookingsPage />),
       },
     ],
   },
