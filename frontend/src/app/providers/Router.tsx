@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, useParams } from "react-router-dom";
 import { Spinner } from "@/shared/ui";
 import { PublicLayout } from "@/widgets/PublicLayout";
 import { AdminLayout } from "@/widgets/AdminLayout";
@@ -10,6 +10,12 @@ const NotFoundPage = lazy(() =>
 );
 const PlaceholderPage = lazy(() =>
   import("@/pages/PlaceholderPage").then((m) => ({ default: m.PlaceholderPage })),
+);
+const EventTypesListPage = lazy(() =>
+  import("@/pages/public/EventTypesListPage").then((m) => ({ default: m.EventTypesListPage })),
+);
+const EventTypePage = lazy(() =>
+  import("@/pages/public/EventTypePage").then((m) => ({ default: m.EventTypePage })),
 );
 
 const withSuspense = (el: ReactNode) => (
@@ -24,6 +30,11 @@ const withSuspense = (el: ReactNode) => (
   </Suspense>
 );
 
+function EventTypePageRoute() {
+  const { id = "" } = useParams();
+  return <EventTypePage id={id} />;
+}
+
 const router = createBrowserRouter([
   {
     element: <PublicLayout />,
@@ -32,11 +43,11 @@ const router = createBrowserRouter([
       { path: "/", element: withSuspense(<HomePage />) },
       {
         path: "/event-types",
-        element: withSuspense(<PlaceholderPage title="Список типов событий (B1)" />),
+        element: withSuspense(<EventTypesListPage />),
       },
       {
         path: "/booking/:id",
-        element: withSuspense(<PlaceholderPage title="Бронирование (B2–B5)" />),
+        element: withSuspense(<EventTypePageRoute />),
       },
     ],
   },
