@@ -9,7 +9,7 @@ interface BookingSuccessProps {
 
 export function BookingSuccess({ booking }: BookingSuccessProps) {
   return (
-    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+    <div data-testid="booking-success" className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
         <svg viewBox="0 0 20 20" fill="currentColor" className="h-6 w-6 text-emerald-600">
           <path

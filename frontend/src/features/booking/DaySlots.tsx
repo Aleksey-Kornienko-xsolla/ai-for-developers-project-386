@@ -39,6 +39,7 @@ export function DaySlots({ daySlots, selectedSlotId, onSelectSlot }: DaySlotsPro
             <button
               key={s.id}
               type="button"
+              data-testid="slot-button"
               disabled={isBooked}
               onClick={() => onSelectSlot(s)}
               className={`h-9 rounded-md border text-sm font-medium transition ${

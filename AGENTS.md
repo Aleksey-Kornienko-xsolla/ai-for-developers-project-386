@@ -2,6 +2,28 @@
 
 Repository for a Calendly-style booking app. TypeSpec contract in `contract/` is the source of truth for the API; `frontend/` is the React SPA that consumes it.
 
+## Commits (Conventional Commits)
+
+Все коммиты (включая коммиты агента) должны следовать формату Conventional Commits.
+Проверка проходит в CI через `commitlint` (`.github/workflows/commitlint.yml`) и
+**блокирует** PR при нарушении формата.
+
+Формат: `type(scope): subject`
+
+- Допустимые `type`: `feat`, `fix`, `test`, `docs`, `ci`, `chore`, `refactor`, `perf`, `build`, `style`
+- Допустимые `scope`: `contract`, `backend`, `frontend`, `e2e`, `ci`, `docs`, `chore`, `release`
+- `subject` — lowercase, без точки в конце, императив
+- Длина header — не более 100 символов
+- Body (опц.) через пустую строку после header; footer (опц.) — `Closes #N`, `BREAKING CHANGE:`
+
+Примеры:
+- `feat(backend): add booking idempotency cache`
+- `test(e2e): add booking happy path scenario`
+- `ci: add release-please workflow`
+- `docs: add user scenarios`
+
+Локально: `npm run commit` (commitizen) в корне репозитория.
+
 ## Layout
 - `contract/` — TypeSpec API definition (`*.tsp`) and compiled OpenAPI output at `contract/tsp-output/@typespec/openapi3/openapi.yaml`. Rebuild with `npm run compile` inside `contract/`.
 - `frontend/` — React + TypeScript + Vite SPA. This is where almost all work happens.

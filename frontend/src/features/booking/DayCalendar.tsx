@@ -138,6 +138,7 @@ export function DayCalendar({ slots, selectedDay, onSelectDay, initialDay }: Day
             <button
               key={key}
               type="button"
+              data-testid="calendar-day"
               disabled={!isSelectable}
               onClick={() => onSelectDay(key)}
               className={`aspect-square rounded-md text-sm font-medium transition ${

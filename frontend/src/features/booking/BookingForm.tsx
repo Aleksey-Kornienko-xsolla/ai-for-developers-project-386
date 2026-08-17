@@ -27,7 +27,7 @@ export function BookingForm({ onSubmit, isPending, serverError, defaultValues }:
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} data-testid="booking-form" className="space-y-4">
       <Field label="Ваше имя" htmlFor="name" error={errors.guest?.name?.message}>
         <Input id="name" invalid={Boolean(errors.guest?.name)} {...register("guest.name")} />
       </Field>
