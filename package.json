@@ -1,0 +1,21 @@
+{
+  "name": "booking-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Calendly-style booking app monorepo: TypeSpec contract, Fastify backend, React frontend.",
+  "scripts": {
+    "commit": "cz",
+    "commitlint": "commitlint --from=HEAD~1 --to=HEAD"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  }
+}
