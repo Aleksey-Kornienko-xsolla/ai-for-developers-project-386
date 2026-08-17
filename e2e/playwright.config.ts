@@ -12,7 +12,6 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: process.env.CI ? "html" : "list",
-  globalSetup: "./global-setup.ts",
   use: {
     baseURL: FRONTEND_URL,
     trace: "on-first-retry",

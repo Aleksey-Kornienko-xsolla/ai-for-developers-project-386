@@ -18,15 +18,20 @@ Calendly-style booking app monorepo: TypeSpec contract, Fastify backend, React f
 Интеграционные E2E-тесты (Playwright, chromium) покрывают основной сценарий
 бронирования и граничные случаи — см. [`docs/user-scenarios.md`](docs/user-scenarios.md).
 
+Перед запуском тестов нужно собрать backend и frontend (тесты гоняются против
+prod-сборок: `node backend/dist/server.js` + `vite preview`):
+
 ```bash
-cd e2e
-npm install
+cd backend && npm install && npm run build
+cd ../frontend && npm install && npm run build
+cd ../e2e && npm install
 npx playwright install --with-deps chromium
 npx playwright test
 ```
 
 В `playwright.config.ts` настроено автоматическое поднятие окружения: backend на
-`:8080` и frontend preview на `:4173` (`VITE_USE_MOCK=false`).
+`:8080` и frontend preview на `:4173` (`VITE_USE_MOCK=false`). В CI сборка
+выполняется отдельными шагами в `.github/workflows/ci.yml` перед запуском тестов.
 
 ## CI
 
