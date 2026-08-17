@@ -155,7 +155,12 @@ export function EventTypesAdminPage() {
               >
                 Отмена
               </Button>
-              <Button variant="danger" disabled={deleteMutation.isPending} onClick={doDelete}>
+              <Button
+                variant="danger"
+                data-testid="confirm-delete"
+                disabled={deleteMutation.isPending}
+                onClick={doDelete}
+              >
                 {deleteMutation.isPending ? "Удаление…" : "Удалить"}
               </Button>
             </div>
